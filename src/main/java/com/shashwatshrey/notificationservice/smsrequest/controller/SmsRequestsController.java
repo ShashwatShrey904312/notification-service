@@ -3,12 +3,14 @@ package com.shashwatshrey.notificationservice.smsrequest.controller;
 import com.shashwatshrey.notificationservice.smsrequest.bean.SendSmsByIdSuccess;
 import com.shashwatshrey.notificationservice.smsrequest.bean.Sms;
 import com.shashwatshrey.notificationservice.smsrequest.bean.Sms_Requests;
+import com.shashwatshrey.notificationservice.smsrequest.config.kafka.AppConstants;
 import com.shashwatshrey.notificationservice.smsrequest.repository.SmsRequestsRepository;
 import com.shashwatshrey.notificationservice.smsrequest.response.ErrorSmsFailure;
 import com.shashwatshrey.notificationservice.smsrequest.response.SendSmsFailure;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -17,6 +19,9 @@ import java.util.List;
 
 @RestController
 public class SmsRequestsController {
+
+	@Autowired
+	private KafkaTemplate<String,Long> kafkaTemplate;
 	@Autowired
 	private SmsRequestsRepository repository;
 
@@ -48,7 +53,12 @@ public class SmsRequestsController {
 				sms_requests.setPhone_number(sms.getPhoneNumber());
 				repository.save(sms_requests);
 				httpStatus = HttpStatus.OK;
-				System.out.println(sms_requests.getMessage());
+//				System.out.println(sms_requests.getMessage());
+
+				//Kafka Producing
+
+				kafkaTemplate.send(AppConstants.TOPIC_NAME,sms_requests.getId());
+
 				return ResponseEntity.status(httpStatus).body(sms_requests);
 
 			} catch (Exception e) {
@@ -57,6 +67,8 @@ public class SmsRequestsController {
 				httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 				return ResponseEntity.status(httpStatus).body("Internal Server Error");
 			}
+
+
 		}
 	}
 
