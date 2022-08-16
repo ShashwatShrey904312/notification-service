@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostApiBody {
-    private String deliveryChannel;
-    private SmsDataPostApi sms;
-    private DestinationDataPostApi destination;
+public class PostApiResponseDetails {
+    private String code;
+    private String description;
+    private String transid;
+    private String correlationid;
 }

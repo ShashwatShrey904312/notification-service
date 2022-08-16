@@ -4,6 +4,7 @@ package com.shashwatshrey.notificationservice.smsrequest.config.kafka;
 import com.shashwatshrey.notificationservice.smsrequest.config.redis.RedisCaching;
 import com.shashwatshrey.notificationservice.smsrequest.constants.AppConstants;
 import com.shashwatshrey.notificationservice.smsrequest.model.Blacklist;
+import com.shashwatshrey.notificationservice.smsrequest.model.PostApiResponse;
 import com.shashwatshrey.notificationservice.smsrequest.model.Sms_Requests;
 import com.shashwatshrey.notificationservice.smsrequest.repository.SmsRequestsRepository;
 import com.shashwatshrey.notificationservice.smsrequest.utils.ThirdPartyApiPost;
@@ -52,7 +53,10 @@ public class NotificationServiceKafkaConsumer {
                     //Not in Redis Blacklist so move Ahead
                     System.out.println("The Number is not blacklisted "+ requestedSms.get(0).getPhone_number());
                     ThirdPartyApiPost thirdPartyApiPost = new ThirdPartyApiPost();
-                    Object response =  thirdPartyApiPost.postToApi(sms_requests.getId(), sms_requests.getPhone_number(),sms_requests.getMessage());
+                    PostApiResponse response =  thirdPartyApiPost.postToApi(sms_requests.getId(), sms_requests.getPhone_number(),sms_requests.getMessage());
+
+                    System.out.println("Status Code is "+ response.getResponse().get(0).getDescription());
+
 
 
                 }
