@@ -1,9 +1,9 @@
 package com.shashwatshrey.notificationservice.smsrequest.controller;
 
-import com.shashwatshrey.notificationservice.smsrequest.bean.SendSmsByIdSuccess;
-import com.shashwatshrey.notificationservice.smsrequest.bean.Sms;
-import com.shashwatshrey.notificationservice.smsrequest.bean.Sms_Requests;
-import com.shashwatshrey.notificationservice.smsrequest.config.kafka.AppConstants;
+import com.shashwatshrey.notificationservice.smsrequest.model.SendSmsByIdSuccess;
+import com.shashwatshrey.notificationservice.smsrequest.model.Sms;
+import com.shashwatshrey.notificationservice.smsrequest.model.Sms_Requests;
+import com.shashwatshrey.notificationservice.smsrequest.constants.AppConstants;
 import com.shashwatshrey.notificationservice.smsrequest.repository.SmsRequestsRepository;
 import com.shashwatshrey.notificationservice.smsrequest.response.ErrorSmsFailure;
 import com.shashwatshrey.notificationservice.smsrequest.response.SendSmsFailure;
@@ -78,7 +78,6 @@ public class SmsRequestsController {
 		HttpStatus httpStatus;
 		try{
 			List<Sms_Requests> requestedSms = repository.findByIdEquals(request_id);
-			System.out.println(request_id);
 			if(requestedSms.isEmpty())
 			{
 				ErrorSmsFailure errorSmsFailure= new ErrorSmsFailure("INVALID_REQUEST","request_id not found");

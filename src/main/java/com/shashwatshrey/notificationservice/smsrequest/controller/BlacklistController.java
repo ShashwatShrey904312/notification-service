@@ -1,6 +1,7 @@
 package com.shashwatshrey.notificationservice.smsrequest.controller;
 
-import com.shashwatshrey.notificationservice.smsrequest.bean.*;
+import com.shashwatshrey.notificationservice.smsrequest.model.*;
+import com.shashwatshrey.notificationservice.smsrequest.config.redis.RedisCaching;
 import com.shashwatshrey.notificationservice.smsrequest.repository.BlacklistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,11 @@ import java.util.List;
 
 @RestController
 public class BlacklistController {
+
+
+    @Autowired
+    private RedisCaching redisCaching;
+
     @Autowired
     private BlacklistRepository repository;
 
@@ -27,7 +33,10 @@ public class BlacklistController {
                 System.out.println(phone.getNumber());
                 List<Blacklist> findByPhone = repository.findByPhoneNumberEquals(phone.getNumber());
                 if(findByPhone.isEmpty())
-                repository.save(newPhoneBlacklist);
+                {
+                    repository.save(newPhoneBlacklist);
+                    redisCaching.addBlacklistRedis(newPhoneBlacklist, newPhoneBlacklist.getPhoneNumber());
+                }
             }
             httpStatus=HttpStatus.OK;
             BlacklistResponse blacklistResponse = new BlacklistResponse();
@@ -35,7 +44,7 @@ public class BlacklistController {
             return ResponseEntity.status(httpStatus).body(blacklistResponse);
         }
         catch(Exception e){
-            System.out.println(e);
+            System.out.println("Exception while adding a number into the Blacklist DB MySQL and Redis Cache " +e);
             httpStatus=HttpStatus.INTERNAL_SERVER_ERROR;
             return ResponseEntity.status(httpStatus).body("Internal Server Error");
         }
@@ -50,7 +59,12 @@ public class BlacklistController {
             {
                 List<Blacklist> findByPhone = repository.findByPhoneNumberEquals(number.getNumber());
                 for(Blacklist toDelete: findByPhone)
-                repository.deleteById(toDelete.getId());
+                {
+
+                    repository.deleteById(toDelete.getId());
+                    redisCaching.deleteBlacklistRedis(toDelete.getPhoneNumber());
+//                    hashOperations.delete("BLACKLIST",toDelete.getId());
+                }
             }
             httpStatus=HttpStatus.OK;
             BlacklistResponse blacklistResponse = new BlacklistResponse();

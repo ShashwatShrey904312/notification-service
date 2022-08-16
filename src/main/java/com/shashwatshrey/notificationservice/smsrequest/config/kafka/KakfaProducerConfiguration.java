@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-public class KakfaConfiguration {
+public class KakfaProducerConfiguration {
 
     @Bean
     public ProducerFactory<String, Long> producerFactory() {

@@ -1,4 +1,4 @@
-package com.shashwatshrey.notificationservice.smsrequest.bean;
+package com.shashwatshrey.notificationservice.smsrequest.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,5 +1,6 @@
 package com.shashwatshrey.notificationservice.smsrequest.config.kafka;
 
+import com.shashwatshrey.notificationservice.smsrequest.constants.AppConstants;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.LongDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -13,14 +14,14 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-@EnableKafka
+@EnableKafka 
 @Configuration
 public class KafkaConsumerConfiguration {
     @Bean
     public ConsumerFactory<String, Long> consumerFactory() {
         Map<String,Object> config = new HashMap<>();
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"127.0.0.1:9092");
-        config.put(ConsumerConfig.GROUP_ID_CONFIG,AppConstants.GROUP_ID);
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, AppConstants.GROUP_ID);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, LongDeserializer.class);
         return new DefaultKafkaConsumerFactory<>(config);

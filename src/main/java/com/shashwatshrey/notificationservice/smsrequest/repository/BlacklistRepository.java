@@ -1,6 +1,6 @@
 package com.shashwatshrey.notificationservice.smsrequest.repository;
 
-import com.shashwatshrey.notificationservice.smsrequest.bean.Blacklist;
+import com.shashwatshrey.notificationservice.smsrequest.model.Blacklist;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.web.bind.annotation.RestController;
 
