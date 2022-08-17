@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface SmsRequestsRepository extends JpaRepository <Sms_Requests, Long>{
     List<Sms_Requests> findByIdEquals(long id);
+
 }

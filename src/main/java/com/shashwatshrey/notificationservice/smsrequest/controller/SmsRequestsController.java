@@ -1,12 +1,16 @@
 package com.shashwatshrey.notificationservice.smsrequest.controller;
 
+import com.shashwatshrey.notificationservice.smsrequest.constants.AppConstants;
+import com.shashwatshrey.notificationservice.smsrequest.model.ElasticSearchSmsRequest;
 import com.shashwatshrey.notificationservice.smsrequest.model.SendSmsByIdSuccess;
 import com.shashwatshrey.notificationservice.smsrequest.model.Sms;
 import com.shashwatshrey.notificationservice.smsrequest.model.Sms_Requests;
-import com.shashwatshrey.notificationservice.smsrequest.constants.AppConstants;
 import com.shashwatshrey.notificationservice.smsrequest.repository.SmsRequestsRepository;
 import com.shashwatshrey.notificationservice.smsrequest.response.ErrorSmsFailure;
 import com.shashwatshrey.notificationservice.smsrequest.response.SendSmsFailure;
+import com.shashwatshrey.notificationservice.smsrequest.service.ElasticSearchService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +23,14 @@ import java.util.List;
 
 @RestController
 public class SmsRequestsController {
+	private final Logger LOG = LoggerFactory.getLogger(SmsRequestsController.class);
+	private final ElasticSearchService elasticSearchService;
+
+	@Autowired
+	public SmsRequestsController(ElasticSearchService elasticSearchService) {
+		this.elasticSearchService=elasticSearchService;
+
+	}
 
 	@Autowired
 	private KafkaTemplate<String,Long> kafkaTemplate;
@@ -28,6 +40,7 @@ public class SmsRequestsController {
 	@PostMapping("/v1/sms/send")
 	public ResponseEntity addSmsRequest(@RequestBody Sms sms) {
 		HttpStatus httpStatus;
+		elasticSearchService.addSmsToElasticSearch(new ElasticSearchSmsRequest(1,"Dummy","Dummy","Dummy",21,new Date(), new Date()));
 		if (sms.getMessage().isEmpty() || sms.getPhoneNumber().isEmpty()) {
 			String code = "INVALID_REQUEST", message;
 
@@ -53,17 +66,17 @@ public class SmsRequestsController {
 				sms_requests.setPhone_number(sms.getPhoneNumber());
 				repository.save(sms_requests);
 				httpStatus = HttpStatus.OK;
-//				System.out.println(sms_requests.getMessage());
+				LOG.info("Saving the SMS in MySQL DataBase");
 
-				//Kafka Producing
-
+				//Kafka Producing on Topic : notification.send_sms
 				kafkaTemplate.send(AppConstants.TOPIC_NAME,sms_requests.getId());
+				LOG.info("The Kafka Produces produces on TOPIC notification.send_sms");
 
 				return ResponseEntity.status(httpStatus).body(sms_requests);
 
 			} catch (Exception e) {
-				System.out.println(e);
-				System.out.println("hehehhe");
+				LOG.error(e.getMessage());
+				LOG.info("Exception while adding SMS to MYSQL Database");
 				httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
 				return ResponseEntity.status(httpStatus).body("Internal Server Error");
 			}
@@ -77,9 +90,11 @@ public class SmsRequestsController {
 	public ResponseEntity sendSmsDetails(@PathVariable long request_id) {
 		HttpStatus httpStatus;
 		try{
+			LOG.info("Fetching a SMS by its id");
 			List<Sms_Requests> requestedSms = repository.findByIdEquals(request_id);
 			if(requestedSms.isEmpty())
 			{
+				LOG.info("SMS id is invalid sending Bad Request Response");
 				ErrorSmsFailure errorSmsFailure= new ErrorSmsFailure("INVALID_REQUEST","request_id not found");
 				SendSmsFailure sendSmsFailure = new SendSmsFailure(errorSmsFailure);
 				httpStatus=HttpStatus.BAD_REQUEST;
@@ -87,6 +102,7 @@ public class SmsRequestsController {
 			}
 			else
 			{
+				LOG.info("Fetching data from DB");
 				SendSmsByIdSuccess sendSmsByIdSuccess = new SendSmsByIdSuccess();
 				sendSmsByIdSuccess.setData(requestedSms.get(0));
 
@@ -96,6 +112,7 @@ public class SmsRequestsController {
 			}
 		}
 		catch(Exception e) {
+			LOG.error("Exception while sending SMS details by its id "+ e.getMessage());
 			httpStatus=HttpStatus.INTERNAL_SERVER_ERROR;
 			return ResponseEntity.status(httpStatus).body("Internal Server Error");
 		}

@@ -63,7 +63,6 @@ public class BlacklistController {
 
                     repository.deleteById(toDelete.getId());
                     redisCaching.deleteBlacklistRedis(toDelete.getPhoneNumber());
-//                    hashOperations.delete("BLACKLIST",toDelete.getId());
                 }
             }
             httpStatus=HttpStatus.OK;
