@@ -34,5 +34,7 @@ public class Sms_Requests implements Serializable {
     private Date created_at;
     @Column(name="UPDATED_AT")
     private Date updated_at;
+    @Column(name = "STATUS")
+    private String status;
 
 }

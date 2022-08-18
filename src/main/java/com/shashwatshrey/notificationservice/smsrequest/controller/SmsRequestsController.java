@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
-//import com.shashwatshrey.notificationservice.smsrequest.response.SendSmsFailure;
 
 @RestController
 public class SmsRequestsController {
@@ -37,11 +36,18 @@ public class SmsRequestsController {
 	@Autowired
 	private SmsRequestsRepository repository;
 
+	/*POST method on "v1/sms"
+
+    Body:
+    String phoneNumber,message
+     */
 	@PostMapping("/v1/sms/send")
 	public ResponseEntity addSmsRequest(@RequestBody Sms sms) {
+		LOG.info("Adding a new SMS to MySQL DB");
 		HttpStatus httpStatus;
 		elasticSearchService.addSmsToElasticSearch(new ElasticSearchSmsRequest(1,"Dummy","Dummy","Dummy",21,new Date(), new Date()));
 		if (sms.getMessage().isEmpty() || sms.getPhoneNumber().isEmpty()) {
+			LOG.info("Sending Bad Request Response");
 			String code = "INVALID_REQUEST", message;
 
 			if (sms.getMessage().isEmpty() && sms.getPhoneNumber().isEmpty())
@@ -64,6 +70,7 @@ public class SmsRequestsController {
 				sms_requests.setUpdated_at(date);
 				sms_requests.setMessage(sms.getMessage());
 				sms_requests.setPhone_number(sms.getPhoneNumber());
+				sms_requests.setStatus("Added to SQL Database");
 				repository.save(sms_requests);
 				httpStatus = HttpStatus.OK;
 				LOG.info("Saving the SMS in MySQL DataBase");
@@ -85,7 +92,12 @@ public class SmsRequestsController {
 		}
 	}
 
+	/*GET method on "v1/sms/{}"
 
+    path:
+    int request_id
+    String phoneNumber,message
+     */
 	@GetMapping("/v1/sms/{request_id}")
 	public ResponseEntity sendSmsDetails(@PathVariable long request_id) {
 		HttpStatus httpStatus;

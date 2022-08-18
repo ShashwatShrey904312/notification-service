@@ -1,14 +1,12 @@
-package com.shashwatshrey.notificationservice.smsrequest.config.kafka;
+package com.shashwatshrey.notificationservice.smsrequest.service;
 
 
-import com.shashwatshrey.notificationservice.smsrequest.config.redis.RedisCaching;
 import com.shashwatshrey.notificationservice.smsrequest.constants.AppConstants;
 import com.shashwatshrey.notificationservice.smsrequest.model.Blacklist;
 import com.shashwatshrey.notificationservice.smsrequest.model.ElasticSearchSmsRequest;
 import com.shashwatshrey.notificationservice.smsrequest.model.PostApiResponse;
 import com.shashwatshrey.notificationservice.smsrequest.model.Sms_Requests;
 import com.shashwatshrey.notificationservice.smsrequest.repository.SmsRequestsRepository;
-import com.shashwatshrey.notificationservice.smsrequest.service.ElasticSearchService;
 import com.shashwatshrey.notificationservice.smsrequest.utils.ThirdPartyApiPost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,23 +68,36 @@ public class NotificationServiceKafkaConsumer {
                             new ElasticSearchSmsRequest(id,sms_requests.getPhone_number(),sms_requests.getMessage(),null,200,sms_requests.getCreated_at(), sms_requests.getUpdated_at())
                     );
                     LOG.info("Status Code is "+ response.getResponse().get(0).getDescription());
+                    sms_requests.setStatus(response.getResponse().get(0).getDescription());
+                    LOG.info("Updating Details in SQL DB");
+                    repository.save(sms_requests);
 
                 }
                 else
+                {
+
                     LOG.info("The Number "+ requestedSms.get(0).getPhone_number()+" is  Blacklisted ");
+                    sms_requests.setStatus("The Number is Blacklisted");
+                    LOG.info("Updating Details in SQL DB");
+                    repository.save(sms_requests);
+                }
 
             }
-            System.out.println("Consumer is running "+requestedSms.get(0).getMessage());
         }
         catch(Exception e) {
+
+            LOG.info("Exception while consuming sms of id "+id+e.getMessage());
+
             Sms_Requests sms_requests = repository.findByIdEquals(id).get(0);
             if(sms_requests!=null) {
+                sms_requests.setStatus("Unable to send SMS");
                 sms_requests.setFailure_code(500);
                 sms_requests.setFailure_comments(e.getMessage());
                 sms_requests.setUpdated_at(new Date());
+
+                LOG.info("Updating Details in SQL DB");
                 repository.save(sms_requests);
             }
-            LOG.info("Exception while consuming sms of id "+id+e.getMessage());
             LOG.error(e.getStackTrace().toString());
         }
 

@@ -1,4 +1,4 @@
-package com.shashwatshrey.notificationservice.smsrequest.config.redis;
+package com.shashwatshrey.notificationservice.smsrequest.service;
 
 import com.shashwatshrey.notificationservice.smsrequest.model.Blacklist;
 import org.springframework.cache.annotation.CacheEvict;
