@@ -15,7 +15,7 @@ public class RedisConfiguration {
     RedisTemplate redisTemplate() {
         RedisTemplate redisTemplate= new RedisTemplate();
         redisTemplate.setConnectionFactory(jedisConnectionFactory());
-
+        //TODO - Add serializers
 
 
         return redisTemplate;

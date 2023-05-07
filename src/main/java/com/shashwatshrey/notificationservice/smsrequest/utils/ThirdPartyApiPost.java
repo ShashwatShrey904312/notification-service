@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ThirdPartyApiPost {
-
+    //TODO - Make this a Service
 
     private final Logger LOG = LoggerFactory.getLogger(ThirdPartyApiPost.class);
     public  PostApiResponse postToApi  (long id,String phoneNumber, String message) throws RuntimeException{

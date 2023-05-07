@@ -34,6 +34,7 @@ public class BlacklistController {
     public ResponseEntity  addToBlacklist(@RequestBody BlacklistRequestBody blacklistRequestBody) {
         HttpStatus httpStatus;
         try{
+            //Add to handler
             LOG.info("Adding Numbers into Blacklist MySQL DB");
             List<PhoneNumber> toBlackList = blacklistRequestBody.getPhoneNumbers();
             //TODO : convert for loop to stream
@@ -45,7 +46,8 @@ public class BlacklistController {
                 List<Blacklist> findByPhone = repository.findByPhoneNumberEquals(phone.getNumber());
                 if(findByPhone.isEmpty())
                 {
-
+                    //TODO save if not exists
+                    //TODO check MYSQL
                     LOG.info("Adding number "+newPhoneBlacklist.getPhoneNumber() +" into Blacklist MySQL DB");
                     repository.save(newPhoneBlacklist);
                     LOG.info("Adding number "+newPhoneBlacklist.getPhoneNumber() +" into Redis");

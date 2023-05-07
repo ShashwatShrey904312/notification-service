@@ -1,7 +1,6 @@
 package com.shashwatshrey.notificationservice.smsrequest.controller;
 
 import com.shashwatshrey.notificationservice.smsrequest.constants.AppConstants;
-import com.shashwatshrey.notificationservice.smsrequest.model.ElasticSearchSmsRequest;
 import com.shashwatshrey.notificationservice.smsrequest.model.SendSmsByIdSuccess;
 import com.shashwatshrey.notificationservice.smsrequest.model.Sms;
 import com.shashwatshrey.notificationservice.smsrequest.model.Sms_Requests;
@@ -33,19 +32,21 @@ public class SmsRequestsController {
 
 	@Autowired
 	private KafkaTemplate<String,Long> kafkaTemplate;
+	//TODO - create a handler
 	@Autowired
 	private SmsRequestsRepository repository;
 
-	/*POST method on "v1/sms"
+	/*POST method on "v1/sms/send"
 
     Body:
     String phoneNumber,message
      */
 	@PostMapping("/v1/sms/send")
-	public ResponseEntity addSmsRequest(@RequestBody Sms sms) {
+	public ResponseEntity addSmsRequest(@RequestBody  Sms sms) {
+		//TODO add @NotEmpty and Valid
 		LOG.info("Adding a new SMS to MySQL DB");
 		HttpStatus httpStatus;
-		elasticSearchService.addSmsToElasticSearch(new ElasticSearchSmsRequest(1,"Dummy","Dummy","Dummy",21,new Date(), new Date()));
+//		elasticSearchService.addSmsToElasticSearch(new ElasticSearchSmsRequest(1,"Dummy","Dummy","Dummy",21,new Date(), new Date()));
 		if (sms.getMessage().isEmpty() || sms.getPhoneNumber().isEmpty()) {
 			LOG.info("Sending Bad Request Response");
 			String code = "INVALID_REQUEST", message;
@@ -66,6 +67,8 @@ public class SmsRequestsController {
 			try {
 				Sms_Requests sms_requests = new Sms_Requests();
 				Date date = new Date();
+				//TODO Builder for creating obj
+				//Sms_Requests.builder().created_at(date).build()
 				sms_requests.setCreated_at(date);
 				sms_requests.setUpdated_at(date);
 				sms_requests.setMessage(sms.getMessage());

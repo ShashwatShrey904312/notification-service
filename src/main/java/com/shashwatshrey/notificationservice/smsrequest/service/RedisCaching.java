@@ -18,7 +18,7 @@ public class RedisCaching {
         this.redisTemplate=redisTemplate;
         this.hashOperations=redisTemplate.opsForHash();
     }
-
+    //TODO - MySQL and Redis Object seperate
     @CachePut(value="BLACKLIST",key="#phoneNumber")
     public void addBlacklistRedis(Blacklist blacklist, String phoneNumber) {
         System.out.println("The number is added to REDIS BL "+ phoneNumber);

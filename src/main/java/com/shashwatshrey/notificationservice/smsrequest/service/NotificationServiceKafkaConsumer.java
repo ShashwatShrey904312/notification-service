@@ -64,6 +64,7 @@ public class NotificationServiceKafkaConsumer {
                     PostApiResponse response =  thirdPartyApiPost.postToApi(sms_requests.getId(), sms_requests.getPhone_number(),sms_requests.getMessage());
 
                     //Adding this SMS to the ELastic Search
+                    //TODO Add status
                     elasticSearchService.addSmsToElasticSearch(
                             new ElasticSearchSmsRequest(id,sms_requests.getPhone_number(),sms_requests.getMessage(),null,200,sms_requests.getCreated_at(), sms_requests.getUpdated_at())
                     );
@@ -85,7 +86,7 @@ public class NotificationServiceKafkaConsumer {
             }
         }
         catch(Exception e) {
-
+            //TODO catch diff types of exception and modify
             LOG.info("Exception while consuming sms of id "+id+e.getMessage());
 
             Sms_Requests sms_requests = repository.findByIdEquals(id).get(0);
@@ -96,6 +97,7 @@ public class NotificationServiceKafkaConsumer {
                 sms_requests.setUpdated_at(new Date());
 
                 LOG.info("Updating Details in SQL DB");
+                //TODO add to ES
                 repository.save(sms_requests);
             }
             LOG.error(e.getStackTrace().toString());

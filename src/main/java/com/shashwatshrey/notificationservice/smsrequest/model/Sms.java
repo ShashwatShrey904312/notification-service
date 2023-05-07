@@ -1,6 +1,7 @@
 package com.shashwatshrey.notificationservice.smsrequest.model;
 
 public class Sms {
+
     private String phoneNumber;
 
     public Sms(String phoneNumber, String message) {
